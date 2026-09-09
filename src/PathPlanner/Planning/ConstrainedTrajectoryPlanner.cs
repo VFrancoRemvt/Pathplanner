@@ -25,7 +25,7 @@ internal static class ConstrainedTrajectoryPlanner
                 out var requestedPlan,
                 out _))
         {
-            return requestedPlan!;
+            return requestedPlan! with { WasDynamicallyReduced = false };
         }
 
         var high = requestedProcessSpeed;
@@ -87,7 +87,7 @@ internal static class ConstrainedTrajectoryPlanner
             }
         }
 
-        return best!;
+        return best! with { WasDynamicallyReduced = true };
     }
 
     private static bool TryPlanAtSpeed(
@@ -378,9 +378,10 @@ internal sealed record PlannedTrajectory(
     double PeriodSeconds,
     double AppliedProcessSpeed,
     ConstraintDiagnostic? LimitingConstraint,
-    IReadOnlyList<AxisKinematicSummary> AxisSummaries)
+    IReadOnlyList<AxisKinematicSummary> AxisSummaries,
+    bool WasDynamicallyReduced = false)
 {
     internal int NumberOfRows => Samples.GetLength(0);
 
-    internal double DurationSeconds => NumberOfRows * PeriodSeconds;
+    internal double DurationSeconds => NumberOfRows / (1 / PeriodSeconds);
 }

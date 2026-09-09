@@ -31,7 +31,9 @@ internal sealed class CornerBlendPath
         _arcSourceCoordinates = arcSourceCoordinates;
         ProcessLength = cAxisIndex >= 0
             ? sourceCoordinates[^1] - sourceCoordinates[0]
-            : arcCoordinates![^1];
+            : arcCoordinates is null
+                ? sourceCoordinates[^1] - sourceCoordinates[0]
+                : arcCoordinates[^1];
     }
 
     internal int AxisCount => _points[0].Length;

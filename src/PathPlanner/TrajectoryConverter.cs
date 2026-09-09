@@ -98,8 +98,7 @@ public sealed class TrajectoryConverter
         var appliedDisplaySpeed = isRotaryDriven
             ? planned.AppliedProcessSpeed / 6
             : planned.AppliedProcessSpeed * 60;
-        var wasReduced =
-            appliedDisplaySpeed < requestedDisplaySpeed * (1 - 1e-6);
+        var wasReduced = planned.WasDynamicallyReduced;
 
         return new ConversionReport(
             planned.NumberOfRows,

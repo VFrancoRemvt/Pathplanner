@@ -41,6 +41,8 @@ public sealed class TrajectoryConverterTests
         Assert.Contains("# Column 2: Position Z [mm]", csv, StringComparison.Ordinal);
         Assert.Equal(report.NumberOfRows / 50.0, report.DurationSeconds, 12);
         Assert.Equal(ProcessSpeedKind.MillimetresPerMinute, report.SpeedKind);
+        Assert.False(report.WasReduced);
+        Assert.Null(report.LimitingConstraint);
     }
 
     [Fact]
@@ -106,5 +108,43 @@ public sealed class TrajectoryConverterTests
                 options));
 
         Assert.Contains("Faltan límites", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(1, 1e9, KinematicQuantity.Acceleration)]
+    [InlineData(1e9, 1, KinematicQuantity.Jerk)]
+    public async Task ConvertAsync_IdentifiesAccelerationOrJerkReduction(
+        double maximumAcceleration,
+        double maximumJerk,
+        KinematicQuantity expectedQuantity)
+    {
+        var options = new TrajectoryConversionOptions
+        {
+            SamplingRateHz = 100,
+            RequestedFeedMmPerMinute = 6_000,
+            LinearToleranceMm = 0,
+            RotaryToleranceDegrees = 0,
+            AxisConstraints =
+            [
+                new(
+                    "X",
+                    AxisKind.Linear,
+                    1e9,
+                    maximumAcceleration,
+                    maximumJerk)
+            ]
+        };
+
+        var report = await new TrajectoryConverter().ConvertAsync(
+            new StringReader("X[0]\nX[10]"),
+            new StringWriter(),
+            options);
+
+        Assert.True(report.WasReduced);
+        Assert.NotNull(report.LimitingConstraint);
+        Assert.Equal(expectedQuantity, report.LimitingConstraint.Quantity);
+        var summary = Assert.Single(report.AxisSummaries);
+        Assert.True(summary.MaximumAcceleration <= maximumAcceleration * 1.000001);
+        Assert.True(summary.MaximumJerk <= maximumJerk * 1.000001);
     }
 }

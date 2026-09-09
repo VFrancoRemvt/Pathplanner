@@ -49,4 +49,17 @@ public sealed class CncProgramParserTests
         Assert.Equal(-3, program.GetPosition(0, 1));
         Assert.Equal(0.5, program.GetPosition(1, 0));
     }
+
+    [Theory]
+    [InlineData("two-axis.txt", 2)]
+    [InlineData("four-axis.txt", 4)]
+    public void ParseFile_ReadsSyntheticFixtures(string fileName, int expectedAxes)
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "Fixtures", fileName);
+
+        var program = new CncProgramParser().ParseFile(path);
+
+        Assert.Equal(expectedAxes, program.AxisCount);
+        Assert.Equal(4, program.PointCount);
+    }
 }

@@ -429,6 +429,18 @@ public static class DemoApplication
             settings.Rpm is not null
                 ? $"  Velocidad: {settings.Rpm:G17} rpm"
                 : $"  Avance: {settings.Feed:G17} mm/min");
+        await output.WriteLineAsync(
+            $"  Tolerancia lineal: {settings.LinearToleranceMm:G17} mm");
+        await output.WriteLineAsync(
+            $"  Tolerancia rotativa: {settings.RotaryToleranceDegrees:G17} deg");
+        foreach (var axis in settings.Constraints)
+        {
+            var unit = axis.Kind == AxisKind.Linear ? "mm" : "deg";
+            await output.WriteLineAsync(
+                $"  Eje {axis.AxisName}: V={axis.MaxVelocity:G17} {unit}/s, " +
+                $"A={axis.MaxAcceleration:G17} {unit}/s², " +
+                $"J={axis.MaxJerk:G17} {unit}/s³");
+        }
     }
 
     private static async Task PrintReportAsync(

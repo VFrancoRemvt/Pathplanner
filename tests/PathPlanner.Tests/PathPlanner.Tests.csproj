@@ -1,10 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
@@ -31,4 +29,7 @@
     <ProjectReference Include="..\..\src\PathPlanner.Demo\PathPlanner.Demo.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Fixtures\*.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
